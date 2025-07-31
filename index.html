@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Secret Code Converter</title>
+    <!-- Tailwind CSS CDN for a modern and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0; /* Light gray background */
+        }
+        /* Custom class for the active button state */
+        .mode-active {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-xl border border-gray-300">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-2">Emoji Secret Code</h1>
+        <p class="text-lg text-center text-gray-600 mb-8">Convert your message to a secret code using emojis.</p>
+
+        <!-- Mode Switcher Buttons -->
+        <div class="flex justify-center mb-6">
+            <button id="encodeModeButton" class="mode-active bg-blue-600 text-white font-semibold py-3 px-6 rounded-l-full shadow-lg transform transition-all duration-300 hover:scale-105 active:scale-95 flex-grow text-center border border-r-0 border-gray-300">
+                Encode
+            </button>
+            <button id="decodeModeButton" class="bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-r-full shadow-lg transform transition-all duration-300 hover:scale-105 active:scale-95 flex-grow text-center border border-gray-300">
+                Decode
+            </button>
+        </div>
+
+        <!-- Input Section -->
+        <div class="mb-6">
+            <label id="inputLabel" for="inputText" class="block text-gray-700 font-semibold mb-2">Your Message</label>
+            <textarea id="inputText" class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none h-32 text-lg" placeholder="Type your secret message here..."></textarea>
+        </div>
+
+        <!-- Action Button -->
+        <div class="flex justify-center mb-6">
+            <button id="convertButton" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-12 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
+                <i class="fas fa-arrow-right"></i>
+                <span>Convert</span>
+            </button>
+        </div>
+
+        <!-- Output Section -->
+        <div class="relative">
+            <label id="outputLabel" for="outputText" class="block text-gray-700 font-semibold mb-2">Secret Emoji Code</label>
+            <textarea id="outputText" class="w-full p-4 border border-gray-300 rounded-xl bg-gray-100 text-gray-800 resize-none h-32 text-lg" readonly></textarea>
+            
+            <!-- Copy to Clipboard Button -->
+            <button id="copyButton" class="absolute right-4 top-10 bg-white text-gray-600 p-3 rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-copy"></i>
+            </button>
+
+            <!-- Status Message Box -->
+            <div id="statusMessage" class="absolute bottom-4 right-4 bg-green-500 text-white text-sm py-2 px-4 rounded-full opacity-0 transition-opacity duration-300">
+                Copied!
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Define a simple emoji mapping
+        const emojiMap = {
+            'a': '🍎', 'b': '🍌', 'c': '🍊', 'd': '🍇', 'e': '🍋', 'f': '🍓', 'g': '🍉',
+            'h': '🍒', 'i': '🍍', 'j': '🥝', 'k': '🥥', 'l': '🥭', 'm': '🍑', 'n': '🥑',
+            'o': '🍈', 'p': '🍆', 'q': '🥕', 'r': '🌽', 's': '🌶️', 't': '🍄', 'u': '🧅',
+            'v': '🧄', 'w': '🥔', 'x': '🥦', 'y': '🥒', 'z': '🥬',
+            '1': '🥇', '2': '🥈', '3': '🥉', '4': '🏅', '5': '🎖️', '6': '🏆', '7': '🏅',
+            '8': '🎖️', '9': '🏆', '0': '💯',
+            ' ': '✨', '.': '🔹', ',': '🔸', '?': '❓', '!': '❗',
+            // Reversed map for decoding
+            '🍎': 'a', '🍌': 'b', '🍊': 'c', '🍇': 'd', '🍋': 'e', '🍓': 'f', '🍉': 'g',
+            '🍒': 'h', '🍍': 'i', '🥝': 'j', '🥥': 'k', '🥭': 'l', '🍑': 'm', '🥑': 'n',
+            '🍈': 'o', '🍆': 'p', '🥕': 'q', '🌽': 'r', '🌶️': 's', '🍄': 't', '🧅': 'u',
+            '🧄': 'v', '🥔': 'w', '🥦': 'x', '🥒': 'y', '🥬': 'z',
+            '🥇': '1', '🥈': '2', '🥉': '3', '🏅': '4', '🎖️': '5', '🏆': '6', '🏅': '7',
+            '🎖️': '8', '🏆': '9', '💯': '0',
+            '✨': ' ', '🔹': '.', '🔸': ',', '❓': '?', '❗': '!',
+        };
+
+        const encodeModeButton = document.getElementById('encodeModeButton');
+        const decodeModeButton = document.getElementById('decodeModeButton');
+        const convertButton = document.getElementById('convertButton');
+        const copyButton = document.getElementById('copyButton');
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+        const statusMessage = document.getElementById('statusMessage');
+
+        let currentMode = 'encode'; // Initial mode
+
+        // Function to update the UI based on the current mode
+        function updateUI() {
+            if (currentMode === 'encode') {
+                encodeModeButton.classList.add('mode-active', 'bg-blue-600', 'text-white');
+                encodeModeButton.classList.remove('bg-gray-200', 'text-gray-700');
+                decodeModeButton.classList.remove('mode-active', 'bg-blue-600', 'text-white');
+                decodeModeButton.classList.add('bg-gray-200', 'text-gray-700');
+                
+                inputLabel.textContent = "Your Message";
+                inputText.placeholder = "Type your secret message here...";
+                outputLabel.textContent = "Secret Emoji Code";
+            } else {
+                decodeModeButton.classList.add('mode-active', 'bg-blue-600', 'text-white');
+                decodeModeButton.classList.remove('bg-gray-200', 'text-gray-700');
+                encodeModeButton.classList.remove('mode-active', 'bg-blue-600', 'text-white');
+                encodeModeButton.classList.add('bg-gray-200', 'text-gray-700');
+                
+                inputLabel.textContent = "Your Emoji Code";
+                inputText.placeholder = "Paste your emoji code here...";
+                outputLabel.textContent = "Decoded Message";
+            }
+            // Clear input and output fields when switching modes
+            inputText.value = '';
+            outputText.value = '';
+        }
+
+        // Function to encode the text to emojis
+        function encodeText() {
+            let text = inputText.value.toLowerCase();
+            let encoded = '';
+            for (const char of text) {
+                // Check if the character exists in the map, otherwise keep the original character
+                encoded += emojiMap[char] || char;
+            }
+            outputText.value = encoded;
+        }
+
+        // Function to decode the emojis back to text
+        function decodeText() {
+            let emojiCode = inputText.value;
+            let decoded = '';
+            let i = 0;
+            while (i < emojiCode.length) {
+                let foundMatch = false;
+                // Try to match multi-character emojis first (like 🌶️)
+                for (const key of Object.keys(emojiMap).filter(k => k.length > 1).sort((a, b) => b.length - a.length)) {
+                    if (emojiCode.startsWith(key, i)) {
+                        decoded += emojiMap[key];
+                        i += key.length;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                // If no multi-character emoji found, try single character
+                if (!foundMatch) {
+                    const char = emojiCode[i];
+                    decoded += emojiMap[char] || char;
+                    i++;
+                }
+            }
+            outputText.value = decoded;
+        }
+
+        // Function to copy the output text to the clipboard
+        function copyToClipboard() {
+            // Select the output text
+            outputText.select();
+            outputText.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                // Use the older, more reliable document.execCommand for copying
+                document.execCommand('copy');
+                // Show a brief success message
+                statusMessage.classList.add('opacity-100');
+                setTimeout(() => {
+                    statusMessage.classList.remove('opacity-100');
+                }, 1500);
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+                // You could add a custom error message here
+            }
+        }
+
+        // Event listeners
+        encodeModeButton.addEventListener('click', () => {
+            currentMode = 'encode';
+            updateUI();
+        });
+
+        decodeModeButton.addEventListener('click', () => {
+            currentMode = 'decode';
+            updateUI();
+        });
+
+        convertButton.addEventListener('click', () => {
+            if (currentMode === 'encode') {
+                encodeText();
+            } else {
+                decodeText();
+            }
+        });
+        
+        copyButton.addEventListener('click', copyToClipboard);
+
+        // Initial UI setup
+        updateUI();
+    </script>
+</body>
+</html>
