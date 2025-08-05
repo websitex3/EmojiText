@@ -7,29 +7,58 @@
     <!-- Use Tailwind CSS for a clean, mobile-first design -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Apply a custom font and dark theme with a vibrant gradient background */
+        /* Apply a custom font and dark theme with a subtle emoji background */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background-color: #121212;
             color: #e0e7ff;
             min-height: 100vh;
+            position: relative;
         }
+
+        /* More prominent, repeating emoji background pattern with subtle animation */
+        .emoji-background::before {
+            content: '';
+            position: fixed; /* Use fixed to keep the background in place while scrolling */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='50' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%98%8D%3C/text%3E%3Ctext x='50' y='50' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%A4%A9%3C/text%3E%3Ctext x='25' y='75' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%8C%88%3C/text%3E%3Ctext x='75' y='25' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%8C%9F%3C/text%3E%3C/svg%3E");
+            background-size: 50px 50px;
+            background-repeat: repeat;
+            animation: pulse-glow 15s infinite ease-in-out;
+            z-index: -1; /* Push background behind the content */
+        }
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.05); }
+            100% { opacity: 0.1; transform: scale(1); }
+        }
+
         .container {
             max-width: 90%;
             margin: 2rem auto;
             animation: fadeIn 1s ease-in-out;
-            position: relative; /* Make container the positioning context for the version tag */
+            position: relative;
+            z-index: 10;
+            background-color: rgba(26, 32, 44, 0.7); /* More transparent background */
+            backdrop-filter: blur(8px); /* Frosted glass effect */
+            border-radius: 1.5rem; /* Rounded corners for the container */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
         }
         /* Custom styles for textareas to match the dark theme */
         textarea {
-            background-color: #1a202c;
+            background-color: #1e1e1e;
             border-color: #4a5568;
-            resize: none; /* Disable resizing for a consistent look */
+            resize: none;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
         textarea:focus {
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3);
             border-color: #6366f1;
         }
         button {
@@ -54,14 +83,19 @@
             color: #ffffff;
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
         }
+        .btn-copy {
+            background-color: #4b5563;
+            color: #d1d5db;
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.2);
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="container bg-[#1a202c] p-10 rounded-3xl shadow-2xl space-y-6 max-w-3xl w-full">
+<body class="flex flex-col items-center justify-center min-h-screen p-4 emoji-background">
+    <div class="container p-10 rounded-3xl shadow-2xl space-y-6 max-w-3xl w-full">
         <h1 class="text-5xl font-extrabold text-center text-white mb-8 tracking-wide">Emoji Text</h1>
 
         <!-- Mode Selection Buttons -->
@@ -76,7 +110,7 @@
 
         <!-- Input Box -->
         <div>
-            <label for="inputText" class="block text-gray-300 text-sm font-medium mb-2">Input </label>
+            <label for="inputText" class="block text-gray-300 text-sm font-medium mb-2">Input Text</label>
             <textarea id="inputText" rows="6" placeholder="Type your message here..." class="w-full p-5 rounded-xl border-2 border-gray-600 focus:border-indigo-400"></textarea>
         </div>
 
@@ -90,12 +124,17 @@
         <!-- Output Box -->
         <div>
             <label for="outputText" class="block text-gray-300 text-sm font-medium mb-2">Output</label>
-            <textarea id="outputText" rows="6" readonly class="w-full p-5 rounded-xl border-2 border-gray-600"></textarea>
+            <div class="relative">
+                <textarea id="outputText" rows="6" readonly class="w-full p-5 rounded-xl border-2 border-gray-600"></textarea>
+                <button id="copyBtn" class="absolute bottom-4 right-4 p-2 rounded-xl text-sm font-bold btn-copy transform hover:scale-105">
+                    Copy
+                </button>
+            </div>
         </div>
 
         <!-- Version Tag in the bottom right corner, within the container -->
         <div class="absolute bottom-4 right-4 text-sm text-gray-400 opacity-75">
-            Beta 1.0
+            Beta 1.1
         </div>
     </div>
 
@@ -145,7 +184,9 @@
             const encodeBtn = document.getElementById('encodeBtn');
             const decodeBtn = document.getElementById('decodeBtn');
             const convertBtn = document.getElementById('convertBtn');
+            const copyBtn = document.getElementById('copyBtn');
             let mode = 'encode'; // Initial mode
+            let originalCopyBtnText = 'Copy';
 
             // Function to set the active mode
             const setMode = (newMode) => {
@@ -177,8 +218,8 @@
                         const randomIndex = Math.floor(Math.random() * emojis.length);
                         output += emojis[randomIndex] + ' '; // Add a space for readability
                     } else {
-                        // Keep non-alphabetic characters as they are
-                        output += char;
+                        // Keep non-alphabetic characters as they are, separated by a space
+                        output += char + ' ';
                     }
                 }
                 outputText.value = output.trim(); // Trim trailing space
@@ -186,22 +227,52 @@
 
             // Decoding function: turns emojis back into their corresponding letters
             const decode = () => {
+                // Split the input by one or more spaces to separate the emojis
                 const input = inputText.value.trim().split(/\s+/);
                 let output = '';
-                for (const emoji of input) {
-                    if (letterMap[emoji]) {
-                        output += letterMap[emoji];
+                for (const token of input) {
+                    if (letterMap[token]) {
+                        // If the token is a known emoji, decode it to its letter
+                        output += letterMap[token];
                     } else {
-                        // If it's not a known emoji, just add it back
-                        output += emoji + ' ';
+                        // If it's not a known emoji, it must be punctuation, a number, or a space.
+                        // Append it directly to the output without an extra space.
+                        output += token;
                     }
                 }
-                outputText.value = output.trim();
+                outputText.value = output;
             };
 
-            // Event listeners
-            encodeBtn.addEventListener('click', () => setMode('encode'));
-            decodeBtn.addEventListener('click', () => setMode('decode'));
+            // Event listener for the copy button
+            copyBtn.addEventListener('click', () => {
+                outputText.select();
+                try {
+                    // document.execCommand('copy') is more reliable in this environment
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'Copied!' : 'Failed to copy';
+                    console.log(msg);
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalCopyBtnText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    copyBtn.textContent = 'Error!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalCopyBtnText;
+                    }, 2000);
+                }
+            });
+
+            // Event listeners for the main buttons
+            encodeBtn.addEventListener('click', () => {
+                setMode('encode');
+                encode();
+            });
+            decodeBtn.addEventListener('click', () => {
+                setMode('decode');
+                decode();
+            });
             convertBtn.addEventListener('click', () => {
                 if (mode === 'encode') {
                     encode();
