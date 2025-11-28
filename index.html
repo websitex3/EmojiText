@@ -6,6 +6,10 @@
     <title>Emoji Text</title>
     <!-- Use Tailwind CSS for a clean, mobile-first design -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FAVICON LINK ADDED -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/websitex3/EmojiText/main/favicon-32x32.png" />
+
     <style>
         /* Apply a custom font and dark theme with a subtle emoji background */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -25,6 +29,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            /* Using a placeholder SVG for the emoji pattern */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='50' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%98%8D%3C/text%3E%3Ctext x='50' y='50' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%A4%A9%3C/text%3E%3Ctext x='25' y='75' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%8C%88%3C/text%3E%3Ctext x='75' y='25' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%8C%9F%3C/text%3E%3C/svg%3E");
             background-size: 50px 50px;
             background-repeat: repeat;
@@ -186,14 +191,22 @@
 
         <!-- Version Tag in the bottom right corner, within the container -->
         <div class="absolute bottom-4 right-4 text-sm text-gray-400 opacity-75">
-            Beta 1.1
+            Beta 1.2
         </div>
     </div>
+
+    <!-- HOMEPAGE LINK UPDATED: Made bolder and brighter with a glowing effect -->
+    <a href="https://websitex3.github.io/home/" 
+       class="mt-8 text-xl font-bold text-teal-400 hover:text-teal-300 hover:underline transition-all duration-300 drop-shadow-lg"
+       style="text-shadow: 0 0 8px rgba(52, 211, 163, 0.6);"
+    >
+        Samuel's Homepage
+    </a>
 
     <!-- Update Pop-up -->
     <div id="updatePopup" class="popup-overlay">
         <div class="popup-content">
-            <h2 class="text-3xl font-bold text-white mb-4">Update Beta 1.1</h2>
+            <h2 class="text-3xl font-bold text-white mb-4">Update Beta 1.2</h2>
             <ul class="text-gray-300 text-lg">
                 <li>Emoji-themed design with subtle animations.</li>
                 <li>Perfectly working encoding and decoding for all text, including punctuation.</li>
@@ -218,6 +231,7 @@
 
             if (lastVisitedVersion !== APP_VERSION) {
                 updatePopup.classList.add('show');
+                // NOTE: Using localStorage here for demonstration purposes, though Firestore is preferred for persistent user data.
                 localStorage.setItem('emojiAppVersion', APP_VERSION);
             }
 
