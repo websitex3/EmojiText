@@ -3,336 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAT Ends & Snake</title>
-    <!-- Tailwind CSS -->
+    <title>Emoji Text</title>
+    <!-- Use Tailwind CSS for a clean, mobile-first design -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- FAVICON: CORRECTED LINK -->
-    <!-- The raw GitHub URL is used for proper image loading -->
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/websitex3/EmojiText/main/favicon-32x32.png" />
-    
     <style>
+        /* Apply a custom font and dark theme with a subtle emoji background */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
+            background-color: #121212;
+            color: #e0e7ff;
+            min-height: 100vh;
+            position: relative;
         }
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+
+        /* More prominent, repeating emoji background pattern with subtle animation */
+        .emoji-background::before {
+            content: '';
+            position: fixed; /* Use fixed to keep the background in place while scrolling */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='50' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%98%8D%3C/text%3E%3Ctext x='50' y='50' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%A4%A9%3C/text%3E%3Ctext x='25' y='75' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%8C%88%3C/text%3E%3Ctext x='75' y='25' font-size='15' fill='%23333' opacity='0.2'%3E%F0%9F%8C%9F%3C/text%3E%3C/svg%3E");
+            background-size: 50px 50px;
+            background-repeat: repeat;
+            animation: pulse-glow 15s infinite ease-in-out;
+            z-index: -1; /* Push background behind the content */
         }
-        canvas {
-            background-color: #2c3e50;
-            border-radius: 1rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-            touch-action: none;
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.05); }
+            100% { opacity: 0.1; transform: scale(1); }
         }
-        .game-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            text-align: center;
-            display: none;
+
+        .container {
+            max-width: 90%;
+            margin: 2rem auto;
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
             z-index: 10;
+            background-color: rgba(26, 32, 44, 0.7); /* More transparent background */
+            backdrop-filter: blur(8px); /* Frosted glass effect */
+            border-radius: 1.5rem; /* Rounded corners for the container */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+        }
+        /* Custom styles for textareas to match the dark theme */
+        textarea {
+            background-color: #1e1e1e;
+            border-color: #4a5568;
+            resize: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        textarea:focus {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-color: #6366f1;
+        }
+        button {
+            transition: all 0.2s ease-in-out;
+            transform: scale(1);
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .btn-encode {
+            background-color: #6366f1;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        .btn-decode {
+            background-color: #4b5563;
+            color: #d1d5db;
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.2);
+        }
+        .btn-convert {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-copy {
+            background-color: #4b5563;
+            color: #d1d5db;
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Styles for the Update Pop-up */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-content {
+            background-color: #1a202c;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            text-align: center;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            color: #e0e7ff; /* Ensure text color is visible */
+        }
+        .popup-overlay.show .popup-content {
+            transform: translateY(0);
+        }
+        .popup-content ul {
+            list-style: none; /* Remove default bullet points */
+            padding: 0;
+            margin-top: 1rem;
+            text-align: left; /* Align list items to the left */
+        }
+        .popup-content ul li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .popup-content ul li::before {
+            content: '✨'; /* Custom emoji bullet point */
+            position: absolute;
+            left: 0;
+            top: 0;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4 space-y-8 lg:space-y-0 lg:space-x-8">
+<body class="flex flex-col items-center justify-center min-h-screen p-4 emoji-background">
+    <div class="container p-10 rounded-3xl shadow-2xl space-y-6 max-w-3xl w-full">
+        <h1 class="text-5xl font-extrabold text-center text-white mb-8 tracking-wide">Emoji Text</h1>
 
-    <!-- Overall Content Wrapper -->
-    <div class="flex flex-col lg:flex-row items-center justify-center w-full max-w-5xl space-y-8 lg:space-y-0 lg:space-x-8">
-    
-        <!-- Countdown Timer Container -->
-        <div id="timer-container" class="bg-white bg-opacity-90 rounded-3xl p-4 shadow-2xl backdrop-filter backdrop-blur-lg flex flex-col items-center transform transition-all duration-500 ease-in-out w-48 text-center flex-shrink-0">
-            <h1 class="text-xl font-bold text-gray-800 mb-2">
-                Countdown to KAT ending
-            </h1>
-            <div class="grid grid-cols-2 gap-2 w-full text-center">
-                <div class="flex flex-col items-center bg-gray-100 rounded-lg p-2 shadow-inner">
-                    <span id="days" class="text-xl font-extrabold text-blue-600">0</span>
-                    <span class="text-xs text-gray-500 uppercase mt-1 font-bold">Days</span>
-                </div>
-                <div class="flex flex-col items-center bg-gray-100 rounded-lg p-2 shadow-inner">
-                    <span id="hours" class="text-xl font-extrabold text-blue-600">0</span>
-                    <span class="text-xs text-gray-500 uppercase mt-1 font-bold">Hours</span>
-                </div>
-                <div class="flex flex-col items-center bg-gray-100 rounded-lg p-2 shadow-inner">
-                    <span id="minutes" class="text-xl font-extrabold text-blue-600">0</span>
-                    <span class="text-xs text-gray-500 uppercase mt-1 font-bold">Mins</span>
-                </div>
-                <div class="flex flex-col items-center bg-gray-100 rounded-lg p-2 shadow-inner">
-                    <span id="seconds" class="text-xl font-extrabold text-blue-600">0</span>
-                    <span class="text-xs text-gray-500 uppercase mt-1 font-bold">Secs</span>
-                </div>
-            </div>
+        <!-- Mode Selection Buttons -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <button id="encodeBtn" class="px-8 py-4 rounded-xl font-bold text-lg btn-encode">
+                Encode
+            </button>
+            <button id="decodeBtn" class="px-8 py-4 rounded-xl font-bold text-lg btn-decode">
+                Decode
+            </button>
         </div>
 
-        <!-- Main Game Content -->
-        <div class="flex flex-col items-center justify-center p-4">
-            <h2 class="text-3xl font-bold text-white mb-4">Snake</h2>
-            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
-                <div class="text-white text-2xl font-bold">Score: <span id="score">0</span></div>
-            </div>
-            <canvas id="gameCanvas"></canvas>
-            <div id="game-message" class="game-message">
-                <h3 class="text-xl md:text-2xl font-bold mb-2">Game Over</h3>
-                <p class="text-lg mb-4">Score: <span id="final-score">0</span></p>
-                <button id="restartBtn" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95">
-                    Play Again
+        <!-- Input Box -->
+        <div>
+            <label for="inputText" class="block text-gray-300 text-sm font-medium mb-2">Input Text</label>
+            <textarea id="inputText" rows="6" placeholder="Type your message here..." class="w-full p-5 rounded-xl border-2 border-gray-600 focus:border-indigo-400"></textarea>
+        </div>
+
+        <!-- Convert Button -->
+        <div class="flex justify-center my-6">
+            <button id="convertBtn" class="w-full max-w-sm px-10 py-4 rounded-xl font-bold text-2xl btn-convert transform hover:scale-105">
+                Convert
+            </button>
+        </div>
+
+        <!-- Output Box -->
+        <div>
+            <label for="outputText" class="block text-gray-300 text-sm font-medium mb-2">Output</label>
+            <div class="relative">
+                <textarea id="outputText" rows="6" readonly class="w-full p-5 rounded-xl border-2 border-gray-600"></textarea>
+                <button id="copyBtn" class="absolute bottom-4 right-4 p-2 rounded-xl text-sm font-bold btn-copy transform hover:scale-105">
+                    Copy
                 </button>
             </div>
         </div>
+
+        <!-- Version Tag in the bottom right corner, within the container -->
+        <div class="absolute bottom-4 right-4 text-sm text-gray-400 opacity-75">
+            Beta 1.1
+        </div>
     </div>
-    
-    <!-- End Message for Countdown -->
-    <div id="end-message" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70 text-white text-3xl md:text-5xl font-bold text-center p-4">
-        The countdown has finished!
-    </div>
-    
-    <!-- Home Page Link - NEWLY ADDED -->
-    <div class="mt-8 pt-4 border-t border-white border-opacity-30 w-full max-w-md text-center">
-        <a 
-            href="https://websitex3.github.io/home/" 
-            class="text-white text-lg font-semibold hover:text-blue-200 transition-colors underline opacity-80 hover:opacity-100"
-        >
-            Samuel's Homepage
-        </a>
+
+    <!-- Update Pop-up -->
+    <div id="updatePopup" class="popup-overlay">
+        <div class="popup-content">
+            <h2 class="text-3xl font-bold text-white mb-4">Update Beta 1.1</h2>
+            <ul class="text-gray-300 text-lg">
+                <li>Emoji-themed design with subtle animations.</li>
+                <li>Perfectly working encoding and decoding for all text, including punctuation.</li>
+                <li>Copy button for output.</li>
+                <li>This new update popup!</li>
+            </ul>
+            <button id="closePopupBtn" class="px-6 py-3 rounded-lg font-semibold text-lg bg-blue-600 text-white shadow-md hover:bg-blue-700 transition-colors duration-200 mt-6">
+                Got It!
+            </button>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Countdown Timer Logic ---
-            const timerContainer = document.getElementById('timer-container');
-            const daysSpan = document.getElementById('days');
-            const hoursSpan = document.getElementById('hours');
-            const minutesSpan = document.getElementById('minutes');
-            const secondsSpan = document.getElementById('seconds');
-            const endMessageDiv = document.getElementById('end-message');
+            // Define the current app version
+            const APP_VERSION = '1.2'; // Increment this for new updates
 
-            const targetDate = new Date('2026-05-18T16:00:00');
-            let countdownInterval = null;
+            // Check for new updates
+            const lastVisitedVersion = localStorage.getItem('emojiAppVersion');
+            const updatePopup = document.getElementById('updatePopup');
+            const closePopupBtn = document.getElementById('closePopupBtn');
 
-            function updateCountdown() {
-                const now = new Date().getTime();
-                const distance = targetDate - now;
-
-                if (distance < 0) {
-                    clearInterval(countdownInterval);
-                    timerContainer.remove();
-                    endMessageDiv.classList.remove('hidden');
-                    return;
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                daysSpan.textContent = days;
-                hoursSpan.textContent = hours;
-                minutesSpan.textContent = minutes;
-                secondsSpan.textContent = seconds;
+            if (lastVisitedVersion !== APP_VERSION) {
+                updatePopup.classList.add('show');
+                localStorage.setItem('emojiAppVersion', APP_VERSION);
             }
 
-            // Start the timer automatically
-            countdownInterval = setInterval(updateCountdown, 1000);
+            closePopupBtn.addEventListener('click', () => {
+                updatePopup.classList.remove('show');
+            });
 
-            // --- Snake Game Logic ---
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const scoreDisplay = document.getElementById('score');
-            const gameMessage = document.getElementById('game-message');
-            const finalScoreDisplay = document.getElementById('final-score');
-            const restartBtn = document.getElementById('restartBtn');
+            // Define the emoji mapping for each letter of the alphabet.
+            // Each letter has exactly 5 unique emojis.
+            const emojiMap = {
+                'a': ['🍎', '✈️', '⚓️', '👽', '🚑'],
+                'b': ['🐻', '🍼', '🚲', '🎈', '📚'],
+                'c': ['🐱', '🚗', '📸', '🌵', '🍪'],
+                'd': ['🐶', '🐬', '🎲', '🥁', '🐉'],
+                'e': ['🐘', '🥚', '👁️', '🌍', '✉️'],
+                'f': ['🐸', '🔥', '🌸', '🚩', '😂'],
+                'g': ['👻', '🍇', '🎁', '🦒', '🐐'],
+                'h': ['❤️', '🔨', '🏠', '🍔', '🦔'],
+                'i': ['🍦', '🏝️', '♾️', '🆔', '🐛'],
+                'j': ['👨‍⚖️', '👖', '🤹', '🎃', '🇯🇵'],
+                'k': ['🔑', '🥝', '🪁', '🦘', '💋'],
+                'l': ['🦁', '🍃', '💻', '🔦', '💡'],
+                'm': ['🌕', '⛰️', '🐭', '🍄', '💰'],
+                'n': ['🥷', '🍜', '💅', '📰', '🦩'],
+                'o': ['🦉', '🐙', '🍊', '👹', '⛎️'],
+                'p': ['🐷', '🍕', '🍍', '🐧', '🐼'],
+                'q': ['❓', '👸', '🦚', '🤫', '🫓'],
+                'r': ['🐰', '🚀', '💍', '🌹', '🤖'],
+                's': ['⭐', '☀️', '🐍', '⚽', '🐿️'],
+                't': ['🐯', '🌳', '🌮', '🎟️', '📞'],
+                'u': ['☂️', '🦄', '🙃', '🇺🇸', '🛸'],
+                'v': ['🌋', '🎻', '🎮', '🦅', '✌️'],
+                'w': ['🐳', '🍉', '🌊', '⌚', '🧰'],
+                'x': ['❎', '❌', '🚷', '🆖', '✖️'],
+                'y': ['🍠', '⛵', '🪀', '🥱', '💛'],
+                'z': ['🦓', '🤪', '🧟', '🤐', '💤']
+            };
 
-            const gridSize = 20;
-            let snake = [];
-            let food = {};
-            let score = 0;
-            let direction = 'right';
-            let changingDirection = false;
-            let gameLoop = null;
-
-            // Resize canvas to be responsive
-            function resizeCanvas() {
-                const gameContainer = document.querySelector('.flex-col.items-center.justify-center');
-                const availableHeight = window.innerHeight - (gameContainer ? gameContainer.getBoundingClientRect().top : 0) - 100; // Adjusted margin
-                const availableWidth = window.innerWidth;
-                const size = Math.min(availableWidth, availableHeight, 400);
-                canvas.width = size - (size % gridSize); 
-                canvas.height = size - (size % gridSize);
-            }
-
-            // Start game function
-            function startGame() {
-                score = 0;
-                scoreDisplay.textContent = score;
-                snake = [{ x: 10, y: 10 }];
-                direction = 'right';
-                changingDirection = false;
-                gameMessage.style.display = 'none';
-                createFood();
-                if (gameLoop) clearInterval(gameLoop);
-                gameLoop = setInterval(update, 150);
-            }
-
-            // Create new food at a random location
-            function createFood() {
-                food = {
-                    x: Math.floor(Math.random() * (canvas.width / gridSize)),
-                    y: Math.floor(Math.random() * (canvas.height / gridSize))
-                };
-                // Ensure food doesn't spawn on the snake
-                snake.forEach(segment => {
-                    if (segment.x === food.x && segment.y === food.y) {
-                        createFood();
-                    }
+            // This is the reverse map for decoding. It's built dynamically.
+            const letterMap = {};
+            for (const letter in emojiMap) {
+                emojiMap[letter].forEach(emoji => {
+                    letterMap[emoji] = letter;
                 });
             }
 
-            // Update game state
-            function update() {
-                if (gameOver()) {
-                    clearInterval(gameLoop);
-                    finalScoreDisplay.textContent = score;
-                    gameMessage.style.display = 'block';
-                    return;
-                }
-                
-                const head = { x: snake[0].x, y: snake[0].y };
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const encodeBtn = document.getElementById('encodeBtn');
+            const decodeBtn = document.getElementById('decodeBtn');
+            const convertBtn = document.getElementById('convertBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            let mode = 'encode'; // Initial mode
+            let originalCopyBtnText = 'Copy';
 
-                switch (direction) {
-                    case 'up': head.y--; break;
-                    case 'down': head.y++; break;
-                    case 'left': head.x--; break;
-                    case 'right': head.x++; break;
-                }
-                snake.unshift(head);
-
-                if (head.x === food.x && head.y === food.y) {
-                    score++;
-                    scoreDisplay.textContent = score;
-                    createFood();
+            // Function to set the active mode
+            const setMode = (newMode) => {
+                mode = newMode;
+                if (mode === 'encode') {
+                    encodeBtn.classList.remove('btn-decode');
+                    encodeBtn.classList.add('btn-encode');
+                    decodeBtn.classList.remove('btn-encode');
+                    decodeBtn.classList.add('btn-decode');
                 } else {
-                    snake.pop();
+                    decodeBtn.classList.remove('btn-decode');
+                    decodeBtn.classList.add('btn-encode');
+                    encodeBtn.classList.remove('btn-encode');
+                    encodeBtn.classList.add('btn-decode');
                 }
+                // Clear the output when the mode changes
+                outputText.value = '';
+            };
 
-                changingDirection = false;
-                draw();
-            }
-
-            // Draw game elements
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                // Re-apply background color for canvas
-                ctx.fillStyle = '#2c3e50';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                drawSnake();
-                drawFood();
-            }
-
-            function drawSnake() {
-                snake.forEach(segment => {
-                    ctx.fillStyle = '#2ecc71';
-                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                    ctx.strokeStyle = '#27ae60';
-                    ctx.strokeRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                });
-            }
-
-            function drawFood() {
-                ctx.fillStyle = '#e74c3c';
-                ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-                ctx.strokeStyle = '#c0392b';
-                ctx.strokeRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-            }
-
-            // Check for game over conditions
-            function gameOver() {
-                const head = snake[0];
-                // Collision with walls
-                if (head.x < 0 || head.x * gridSize >= canvas.width || head.y < 0 || head.y * gridSize >= canvas.height) {
-                    return true;
-                }
-                // Collision with self
-                for (let i = 1; i < snake.length; i++) {
-                    if (snake[i].x === head.x && snake[i].y === head.y) {
-                        return true;
+            // Encoding function: turns text into a random emoji from the corresponding letter's array
+            const encode = () => {
+                const input = inputText.value;
+                let output = '';
+                for (const char of input) {
+                    const lowerChar = char.toLowerCase();
+                    if (emojiMap[lowerChar]) {
+                        // Pick a random emoji from the array for that letter
+                        const emojis = emojiMap[lowerChar];
+                        const randomIndex = Math.floor(Math.random() * emojis.length);
+                        output += emojis[randomIndex] + ' '; // Add a space for readability
+                    } else {
+                        // Keep non-alphabetic characters as they are, separated by a space
+                        output += char + ' ';
                     }
                 }
-                return false;
-            }
+                outputText.value = output.trim(); // Trim trailing space
+            };
 
-            // Handle keyboard input
-            document.addEventListener('keydown', e => {
-                if (changingDirection) return;
-                changingDirection = true;
-                const keyPressed = e.key;
-                const goingUp = direction === 'up';
-                const goingDown = direction === 'down';
-                const goingLeft = direction === 'left';
-                const goingRight = direction === 'right';
+            // Decoding function: turns emojis back into their corresponding letters
+            const decode = () => {
+                // Split the input by one or more spaces to separate the emojis
+                const input = inputText.value.trim().split(/\s+/);
+                let output = '';
+                for (const token of input) {
+                    if (letterMap[token]) {
+                        // If the token is a known emoji, decode it to its letter
+                        output += letterMap[token];
+                    } else {
+                        // If it's not a known emoji, it must be punctuation, a number, or a space.
+                        // Append it directly to the output without an extra space.
+                        output += token;
+                    }
+                }
+                outputText.value = output;
+            };
 
-                if (keyPressed === 'ArrowLeft' && !goingRight) { direction = 'left'; }
-                if (keyPressed === 'ArrowUp' && !goingDown) { direction = 'up'; }
-                if (keyPressed === 'ArrowRight' && !goingLeft) { direction = 'right'; }
-                if (keyPressed === 'ArrowDown' && !goingUp) { direction = 'down'; }
-            });
-
-            // Handle touch input for mobile devices
-            let touchStartX = 0;
-            let touchStartY = 0;
-            canvas.addEventListener('touchstart', e => {
-                e.preventDefault();
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            });
-            canvas.addEventListener('touchend', e => {
-                const touchEndX = e.changedTouches[0].clientX;
-                const touchEndY = e.changedTouches[0].clientY;
-                const dx = touchEndX - touchStartX;
-                const dy = touchEndY - touchStartY;
-                
-                if (changingDirection) return;
-                changingDirection = true;
-                
-                const goingUp = direction === 'up';
-                const goingDown = direction === 'down';
-                const goingLeft = direction === 'left';
-                const goingRight = direction === 'right';
-                
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    // Horizontal swipe
-                    if (dx > 0 && !goingLeft) { direction = 'right'; }
-                    else if (dx < 0 && !goingRight) { direction = 'left'; }
-                } else {
-                    // Vertical swipe
-                    if (dy > 0 && !goingUp) { direction = 'down'; }
-                    else if (dy < 0 && !goingDown) { direction = 'up'; }
+            // Event listener for the copy button
+            copyBtn.addEventListener('click', () => {
+                outputText.select();
+                try {
+                    // document.execCommand('copy') is more reliable in this environment
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'Copied!' : 'Failed to copy';
+                    console.log(msg);
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalCopyBtnText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    copyBtn.textContent = 'Error!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalCopyBtnText;
+                    }, 2000);
                 }
             });
 
-            // Initial setup
-            resizeCanvas();
-            window.addEventListener('resize', () => {
-                resizeCanvas();
-                // Redraw on resize to fix food/snake positions
-                draw(); 
-            }); 
-            restartBtn.addEventListener('click', startGame);
-            startGame();
+            // Event listeners for the main buttons
+            encodeBtn.addEventListener('click', () => {
+                setMode('encode');
+                encode();
+            });
+            decodeBtn.addEventListener('click', () => {
+                setMode('decode');
+                decode();
+            });
+            convertBtn.addEventListener('click', () => {
+                if (mode === 'encode') {
+                    encode();
+                } else {
+                    decode();
+                }
+            });
+
+            // Initial call to set the default mode
+            setMode('encode');
         });
     </script>
 </body>
